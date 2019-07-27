@@ -37,7 +37,7 @@ const filterRecurring = (acc, indEvent) => {
   return acc;
 };
 
-const include = event => event.issueFocus === 'Impeachment Inquiry' || event.issueFocus === 'Town Hall';
+const include = event => event.issueFocus === 'Impeachment Inquiry' || event.actionMeetingType === 'Town Hall';
 
 export const startSetEvents = () => (dispatch) => {
   const url = `${indivisibleUrl}/indivisible_public_events.json`;
@@ -45,7 +45,7 @@ export const startSetEvents = () => (dispatch) => {
     const allevents = result.body;
     const events = Object.keys(allevents)
       .map(id => new IndEvent(allevents[id]))
-      .filter(event => moment(event.starts_at).isAfter() && include)
+      .filter(event => moment(event.starts_at).isAfter() && include(event))
       .reduce(filterRecurring, [])
       .sort((a, b) => ((moment(a.starts_at).isSameOrAfter(moment(b.starts_at))) ? 1 : -1));
     return (dispatch(setEvents(events)));

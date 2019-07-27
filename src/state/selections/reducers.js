@@ -80,7 +80,8 @@ const userSelectionsReducer = (state = initialState, { type, payload }) => {
     case 'SET_INITIAL_FILTERS':
       return {
         ...state,
-        filters: ['2020 Candidate Event'],
+        filters: uniqBy(payload.events, 'issueFocus')
+          .map(item => item.issueFocus),
       };
     default:
       return state;
