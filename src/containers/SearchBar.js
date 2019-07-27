@@ -1,46 +1,72 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { union } from 'lodash';
-import { Radio } from 'antd';
+import { find } from 'lodash';
+import states from '../data/states';
 import * as selectionActions from '../state/selections/actions';
 
-import { getDistance, getIssueFilters, getLocation, getSearchType } from '../state/selections/selectors';
-import { getCurrentIssueFocuses, getColorMap } from '../state/events/selectors';
+import { getDistance, getFilters, getLocation, getSearchType } from '../state/selections/selectors';
+import { getColorMap } from '../state/events/selectors';
 
 import SearchInput from '../components/SearchInput';
 import DistanceFilter from '../components/DistanceSlider';
-import IssueFilterTags from '../components/IssueFilterTags';
 
-const RadioGroup = Radio.Group;
 /* eslint-disable */
 require('style-loader!css-loader!antd/es/radio/style/index.css');
 /* eslint-enable */
 
 class SearchBar extends React.Component {
+  static isZipCode(query) {
+    const zipcodeRegEx = /^(\d{5}-\d{4}|\d{5}|\d{9})$|^([a-zA-Z]\d[a-zA-Z] \d[a-zA-Z]\d)$/g;
+    return query.match(zipcodeRegEx);
+  }
+
+  static isState(query) {
+    return find(states, state =>
+      state.USPS.toLowerCase().trim() === query.toLowerCase().trim()
+    || state.Name.toLowerCase().trim() === query.toLowerCase().trim());
+  }
+
   constructor(props) {
     super(props);
     this.state = {
     };
     this.onTextChange = this.onTextChange.bind(this);
-    this.onSearch = this.onSearch.bind(this);
+    this.searchHandler = this.searchHandler.bind(this);
     this.distanceHandler = this.distanceHandler.bind(this);
-    this.switchSearchType = this.switchSearchType.bind(this);
-    this.renderFilterBar = this.renderFilterBar.bind(this);
-    this.renderSwitch = this.renderSwitch.bind(this);
+  }
+
+  componentWillMount() {
+    const params = ['location'];
+    const queries = params.reduce((acc, cur) => {
+      const query = document.location.search.match(new RegExp(`[?&]${cur}[^&]*`));
+      if (query && query[0].split('=').length > 1) {
+        acc[cur] = query[0].split('=')[1];
+      }
+      return acc;
+    }, {});
+
+    // if (queries.location) {
+    //   return this.searchHandler({
+    //     query: queries.location,
+    //   });
+    // }
   }
 
   onTextChange(e) {
     this.props.setTextFilter(e.target.value);
   }
 
-  onSearch(query) {
+  searchHandler(value) {
+    const { query } = value;
     const {
+      mapType,
       resetSelections,
+      resetSearchByZip,
       resetSearchByQueryString,
       searchType,
-      searchHandler,
-      mapType,
+      searchByZip,
+      searchByQueryString,
     } = this.props;
 
     resetSearchByQueryString();
@@ -48,69 +74,27 @@ class SearchBar extends React.Component {
     if (!query) {
       return resetSelections();
     }
-    return searchHandler(query, searchType, mapType);
+    if (searchType === 'proximity') {
+      if (SearchBar.isZipCode(query)) {
+        return searchByZip(value);
+      }
+      if (SearchBar.isState(query)) {
+        resetSearchByZip();
+        return searchByQueryString({ filterBy: 'state', filterValue: SearchBar.isState(query).USPS });
+      }
+      const filterBy = mapType === 'group' ? 'name' : 'title';
+      return searchByQueryString({
+        filterBy,
+        filterValue: query,
+      });
+    }
+    return resetSelections();
   }
 
   distanceHandler(value) {
     const { setDistance } = this.props;
     return setDistance(value);
   }
-
-  switchSearchType(e) {
-    const searchType = e.target.value;
-    const {
-      changeSearchType,
-      issues,
-      onFilterChanged,
-    } = this.props;
-    if (searchType === 'district') {
-      onFilterChanged(union(issues, ['Town Hall']));
-    }
-    changeSearchType(searchType);
-  }
-
-  renderFilterBar() {
-    const {
-      issues,
-      onFilterChanged,
-      selectedFilters,
-      colorMap,
-      mapType,
-    } = this.props;
-    if (mapType === 'group') {
-      return null;
-    }
-    return (
-      <div className="input-group-filters">
-        <IssueFilterTags
-          colorMap={colorMap}
-          issues={issues}
-          onFilterChanged={onFilterChanged}
-          selectedFilters={selectedFilters}
-        />
-      </div>
-    );
-  }
-
-  renderSwitch() {
-    const {
-      searchType,
-      mapType,
-    } = this.props;
-    if (mapType === 'group') {
-      return null;
-    }
-    return (
-      <div className="search-type-container">
-        <span className="search-by-title">Search by </span>
-        <RadioGroup onChange={this.switchSearchType} value={searchType}>
-          <Radio value="proximity">proximity</Radio>
-          <Radio value="district">district</Radio>
-        </RadioGroup>
-      </div>
-    );
-  }
-
 
   render() {
     const {
@@ -122,11 +106,9 @@ class SearchBar extends React.Component {
       <div className="search-bar">
         <SearchInput
           mapType={mapType}
-          submitHandler={this.onSearch}
+          submitHandler={this.searchHandler}
           searchType={searchType}
         />
-        {this.renderSwitch()}
-        {this.renderFilterBar()}
         <DistanceFilter
           changeHandler={this.distanceHandler}
           distance={distance}
@@ -140,38 +122,34 @@ class SearchBar extends React.Component {
 const mapStateToProps = state => ({
   colorMap: getColorMap(state),
   distance: getDistance(state),
-  issues: getCurrentIssueFocuses(state),
   location: getLocation(state),
   searchType: getSearchType(state),
-  selectedFilters: getIssueFilters(state),
+  selectedFilters: getFilters(state),
   userSelections: state.selections,
 });
 
 const mapDispatchToProps = dispatch => ({
   changeSearchType: searchType => dispatch(selectionActions.changeSearchType(searchType)),
-  onFilterChanged: filters => dispatch(selectionActions.setIssueTypeFilters(filters)),
   resetSearchByQueryString: () => dispatch(selectionActions.resetSearchByQueryString()),
   resetSearchByZip: () => dispatch(selectionActions.resetSearchByZip()),
   resetSelections: () => dispatch(selectionActions.resetSelections()),
   searchByDistrict: district => dispatch(selectionActions.searchByDistrict(district)),
   searchByQueryString: val => dispatch(selectionActions.searchByQueryString(val)),
   searchByZip: zipcode => dispatch(selectionActions.getLatLngFromZip(zipcode)),
-  searchHandler: (query, searchType, mapType) => (
-    dispatch(selectionActions.searchHandler(query, searchType, mapType))),
   setDistance: distance => dispatch(selectionActions.setDistance(distance)),
   setTextFilter: text => dispatch(selectionActions.setTextFilter(text)),
 });
 
 SearchBar.propTypes = {
-  changeSearchType: PropTypes.func.isRequired,
   colorMap: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   distance: PropTypes.number.isRequired,
-  issues: PropTypes.arrayOf(PropTypes.string).isRequired,
   mapType: PropTypes.string.isRequired,
-  onFilterChanged: PropTypes.func.isRequired,
   resetSearchByQueryString: PropTypes.func.isRequired,
+  resetSearchByZip: PropTypes.func.isRequired,
   resetSelections: PropTypes.func.isRequired,
-  searchHandler: PropTypes.func.isRequired,
+  searchByDistrict: PropTypes.func.isRequired,
+  searchByQueryString: PropTypes.func.isRequired,
+  searchByZip: PropTypes.func.isRequired,
   searchType: PropTypes.string,
   selectedFilters: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.string),
@@ -181,7 +159,7 @@ SearchBar.propTypes = {
 };
 
 SearchBar.defaultProps = {
-  searchType: 'proximity',
+  searchType: 'proximity'
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(SearchBar);

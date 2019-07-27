@@ -3,10 +3,8 @@ import { uniqBy } from 'lodash';
 const initialState = {
   distance: 50,
   district: NaN,
-  error: '',
   filterBy: 'all',
   filterValue: '',
-  issueTypeFilters: 'init',
   location: {},
   refcode: '',
   searchType: 'proximity',
@@ -14,13 +12,12 @@ const initialState = {
   zipcode: '',
 };
 
-const filtersReducer = (state = initialState, { type, payload }) => {
+const userSelectionsReducer = (state = initialState, { type, payload }) => {
   switch (type) {
     case 'RESET_SELECTIONS':
       return {
         ...state,
         district: initialState.district,
-        error: initialState.error,
         filterBy: initialState.filterBy,
         filterValue: initialState.filterValue,
         location: initialState.location,
@@ -29,11 +26,6 @@ const filtersReducer = (state = initialState, { type, payload }) => {
       return {
         ...state,
         refcode: payload,
-      };
-    case 'SET_S_PARAM':
-      return {
-        ...state,
-        sParam: payload,
       };
     case 'SET_US_STATE':
       return {
@@ -60,13 +52,11 @@ const filtersReducer = (state = initialState, { type, payload }) => {
     case 'SET_LAT_LNG':
       return {
         ...state,
-        error: initialState.error,
         location: payload,
       };
     case 'RESET_LAT_LNG':
       return {
         ...state,
-        error: initialState.error,
         location: {},
       };
     case 'SEARCH_BY_KEY_VALUE':
@@ -81,11 +71,6 @@ const filtersReducer = (state = initialState, { type, payload }) => {
         filterBy: initialState.filterBy,
         filterValue: initialState.filterValue,
       };
-    case 'SET_ISSUE_TYPE_FILTERS':
-      return {
-        ...state,
-        issueTypeFilters: payload,
-      };
     case 'SET_SEARCH_TYPE':
       return {
         ...state,
@@ -95,19 +80,11 @@ const filtersReducer = (state = initialState, { type, payload }) => {
     case 'SET_INITIAL_FILTERS':
       return {
         ...state,
-        issueTypeFilters: uniqBy(payload.events, 'issueFocus')
-          .map(item => item.issueFocus),
-        // turn back on to filter out town halls by default
-        // .filter(item => item !== 'Town Hall'),
-      };
-    case 'SET_ERROR_MESSAGE':
-      return {
-        ...state,
-        error: payload,
+        filters: ['2020 Candidate Event'],
       };
     default:
       return state;
   }
 };
 
-export default filtersReducer;
+export default userSelectionsReducer;

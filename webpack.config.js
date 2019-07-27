@@ -6,7 +6,12 @@ const HTMLPlugin = require('html-webpack-plugin');
 // Makes a separate CSS bundle
 const ExtractPlugin = require('extract-text-webpack-plugin');
 
-const { EnvironmentPlugin, DefinePlugin } = require('webpack');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+
+const {
+  EnvironmentPlugin,
+  DefinePlugin
+} = require('webpack');
 
 const production = process.NODE_ENV;
 
@@ -16,11 +21,23 @@ const plugins = [
   }),
   new ExtractPlugin('bundle.[hash].css'),
   new EnvironmentPlugin(['NODE_ENV']),
+
   new DefinePlugin({
-    __AUTH_URL__: JSON.stringify(process.env.AUTH_URL),
     __API_URL__: JSON.stringify(process.env.API_URL),
+    __AUTH_URL__: JSON.stringify(process.env.AUTH_URL),
     __DEBUG__: JSON.stringify(!production),
   }),
+  new CopyWebpackPlugin([{
+      flatten: true,
+      from: 'src/data',
+      to: 'data',
+    },
+    {
+      flatten: true,
+      from: 'src/assets/images',
+      to: 'assets',
+    },
+  ]),
 ];
 
 module.exports = {
@@ -50,8 +67,7 @@ module.exports = {
       {
         test: /\.scss$/,
         loader: ExtractPlugin.extract({
-          use: [
-            {
+          use: [{
               loader: 'css-loader',
               options: {
                 sourceMap: true,
@@ -70,28 +86,24 @@ module.exports = {
       },
       {
         test: /\.(woff|woff2|ttf|eot|glyph|\.svg)$/,
-        use: [
-          {
-            loader: 'url-loader',
-            options: {
-              limit: 10000,
-              name: 'font/[name].[ext]',
-            },
+        use: [{
+          loader: 'url-loader',
+          options: {
+            limit: 10000,
+            name: 'font/[name].[ext]',
           },
-        ],
+        }, ],
       },
       {
         test: /\.(jpg|jpeg|gif|png|tiff|svg)$/,
         exclude: /\.glyph.svg/,
-        use: [
-          {
-            loader: 'url-loader',
-            options: {
-              limit: 6000,
-              name: 'image/[name].[ext]',
-            },
+        use: [{
+          loader: 'url-loader',
+          options: {
+            limit: 6000,
+            name: 'image/[name].[ext]',
           },
-        ],
+        }, ],
       },
 
     ],

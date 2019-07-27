@@ -9,7 +9,7 @@ class Table extends React.Component {
   constructor(props) {
     super(props);
     this.getColor = this.getColor.bind(this);
-    this.getIconName = this.getIconName.bind(this);
+    this.getIconName = this.getIconName.bind(this);    
   }
 
   getColor(issueFocus) {
@@ -33,21 +33,11 @@ class Table extends React.Component {
   render() {
     const {
       items,
-      urlParams,
+      refcode,
       shouldRender,
       type,
-      error,
       selectItem,
     } = this.props;
-
-    if (error) {
-      return (
-        <div id="error-message">
-          <p className="no-results">Sorry, something went wrong. {error}</p>
-        </div>
-      );
-    }
-
     if (!shouldRender) {
       return (
         <div id="groups-list">
@@ -58,7 +48,8 @@ class Table extends React.Component {
     if (items.length === 0 && type === 'events') {
       return (
         <div id="events-list">
-          <p className="no-results">Looks like there are no events near you right now. You can create your own <a href="https://act.indivisible.org/event/local-actions/create/?source=eventmap">here</a>.
+          <p className="no-results">Looks like there are no events near you right now. You can create your own
+            <a href="http://act.indivisible.org/event/local-actions/create/" target="_blank"> here.</a>
           </p>
         </div>
       );
@@ -75,7 +66,7 @@ class Table extends React.Component {
               <TableCell
                 key={`${item.id}-cell`}
                 item={item}
-                urlParams={urlParams}
+                refcode={refcode}
                 type={type}
                 color={this.getColor(item.issueFocus)}
                 iconName={this.getIconName(item.issueFocus)}
@@ -90,19 +81,17 @@ class Table extends React.Component {
 
 Table.propTypes = {
   colorMap: PropTypes.arrayOf(PropTypes.object),
-  error: PropTypes.string,
   items: PropTypes.arrayOf(PropTypes.object).isRequired,
+  refcode: PropTypes.string,
   selectItem: PropTypes.func,
   shouldRender: PropTypes.bool.isRequired,
   type: PropTypes.string.isRequired,
-  urlParams: PropTypes.string,
 };
 
 Table.defaultProps = {
   colorMap: [],
-  error: '',
+  refcode: '',
   selectItem: () => {},
-  urlParams: '',
 };
 
 export default Table;

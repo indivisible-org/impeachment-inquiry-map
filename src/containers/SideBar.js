@@ -33,10 +33,9 @@ class SideBar extends React.Component {
     const {
       colorMap,
       items,
-      urlParams,
+      refcode,
       selectItem,
       type,
-      error,
     } = this.props;
     return (
       <div className="side-bar-container">
@@ -44,11 +43,10 @@ class SideBar extends React.Component {
         <Table
           colorMap={colorMap}
           items={items}
-          urlParams={urlParams}
+          refcode={refcode}
           shouldRender={this.renderTable()}
           type={type}
           selectItem={selectItem}
-          error={error}
         />
       </div>
     );
@@ -58,19 +56,17 @@ class SideBar extends React.Component {
 SideBar.propTypes = {
   allItems: PropTypes.arrayOf(PropTypes.object).isRequired,
   colorMap: PropTypes.arrayOf(PropTypes.shape({})),
-  error: PropTypes.string,
   filterBy: PropTypes.string.isRequired,
   items: PropTypes.arrayOf(PropTypes.object).isRequired,
   location: PropTypes.shape({}).isRequired,
+  refcode: PropTypes.string,
   selectItem: PropTypes.func,
   type: PropTypes.string.isRequired,
-  urlParams: PropTypes.string,
 };
 
 SideBar.defaultProps = {
   colorMap: [],
-  error: '',
+  refcode: '',
   selectItem: () => {},
-  urlParams: '',
 };
 export default SideBar;

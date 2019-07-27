@@ -42,16 +42,18 @@ class TableCell extends React.Component {
   }
 
   static makeDisplayName(item) {
-    if (item.actionGroupName &&
-      item.actionHostName &&
-      item.actionGroupName === item.actionHostName) {
-      return item.actionGroupName;
-    } else if (item.actionGroupName && item.actionHostName) {
-      return `${item.actionGroupName} and ${item.actionHostName}`;
-    } else if (item.actionGroupName) {
-      return item.actionGroupName;
-    } else if (item.actionHostName) {
-      return item.actionHostName;
+    if (item.campaignNo === '19') {
+      if (item.actionGroupName &&
+        item.actionHostName &&
+        item.actionGroupName === item.actionHostName) {
+        return item.actionGroupName;
+      } else if (item.actionGroupName && item.actionHostName) {
+        return `${item.actionGroupName} and ${item.actionHostName}`;
+      } else if (item.actionGroupName) {
+        return item.actionGroupName;
+      } else if (item.actionHostName) {
+        return item.actionHostName;
+      }
     }
     return item.group_name;
   }
@@ -66,7 +68,7 @@ class TableCell extends React.Component {
     const {
       iconName,
       item,
-      urlParams,
+      refcode,
     } = this.props;
     const displayName = TableCell.makeDisplayName(item);
     const groupName = displayName ? (<h4 className="event-host semi-bold">Hosted by {displayName}</h4>) : '';
@@ -76,7 +78,7 @@ class TableCell extends React.Component {
         className={`event-cell ${iconName} ${item.issueFocus.toLowerCase().replace(/\W/g, '-')}`}
         key={`${item.id}`}
         title={item.title}
-        extra={[<a key={`${item.id}-rsvp`} className="rsvp-button" target="_blank" href={`${item.rsvpHref}?${urlParams}`}>rsvp</a>]}
+        extra={[<a className="rsvp-button" target="_blank" href={`${item.rsvpHref}${refcode}`}>rsvp</a>]}
       >
         {groupName}
         <ul>
@@ -124,8 +126,8 @@ class TableCell extends React.Component {
     }
     if (item.email) {
       iconsSocial.push(
-        <React.Fragment key={item.id}>
-          <li>
+        <React.Fragment>
+          <li key={item.id} >
             <a onClick={TableCell.getEmail} id={item.id}>
               <FontAwesomeIcon
                 icon={faEnvelope}
@@ -139,12 +141,13 @@ class TableCell extends React.Component {
         </React.Fragment>);
     }
     if (item.url) {
-      iconsSocial.push(<li key={item.url}>
-                          <a href={item.url} target="_blank">
-                            <FontAwesomeIcon icon={faExternalLinkSquareAlt} />
-                            <span className="connect-text">visit website</span>
-                          </a>
-                        </li>);
+      iconsSocial.push(
+        <li key={item.url}>
+          <a href={item.url} target="_blank">
+            <FontAwesomeIcon icon={faExternalLinkSquareAlt} />
+            <span className="connect-text">visit website</span>
+          </a>
+        </li>)
     }
     return (
       <div onMouseEnter={() => selectItem(item)} onMouseLeave={() => selectItem(null)}>
@@ -179,17 +182,19 @@ class TableCell extends React.Component {
 }
 
 TableCell.propTypes = {
+  color: PropTypes.string,
   iconName: PropTypes.string,
   item: PropTypes.shape({}).isRequired,
+  refcode: PropTypes.string,
   selectItem: PropTypes.func,
   type: PropTypes.string.isRequired,
-  urlParams: PropTypes.string,
 };
 
 TableCell.defaultProps = {
+  color: '',
   iconName: '',
+  refcode: '',
   selectItem: () => {},
-  urlParams: '',
 };
 
 export default TableCell;

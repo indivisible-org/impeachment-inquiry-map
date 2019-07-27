@@ -19,7 +19,7 @@ class SearchBar extends React.Component {
     const {
       submitHandler,
     } = this.props;
-    submitHandler(value);
+    submitHandler(Object.assign({}, { query: value }));
   }
 
   render() {
