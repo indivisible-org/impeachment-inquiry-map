@@ -451,6 +451,7 @@ class MapView extends React.Component {
         this.addPopups('unclustered-point');
         this.clusterData(featuresHome);
       }
+      this.handleReset();
     });
   }
 
