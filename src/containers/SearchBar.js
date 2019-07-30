@@ -6,10 +6,14 @@ import states from '../data/states';
 import * as selectionActions from '../state/selections/actions';
 
 import { getDistance, getFilters, getLocation, getSearchType } from '../state/selections/selectors';
-import { getColorMap } from '../state/events/selectors';
+import {
+  getCurrentIssueFocuses,
+  getColorMap,
+} from '../state/events/selectors';
 
 import SearchInput from '../components/SearchInput';
 import DistanceFilter from '../components/DistanceSlider';
+import IssueFilterTags from '../components/IssueFilterTags';
 
 /* eslint-disable */
 require('style-loader!css-loader!antd/es/radio/style/index.css');
@@ -96,6 +100,29 @@ class SearchBar extends React.Component {
     return setDistance(value);
   }
 
+  renderFilterBar() {
+    const {
+      issues,
+      onFilterChanged,
+      selectedFilters,
+      colorMap,
+      mapType,
+    } = this.props;
+    if (mapType === 'group') {
+      return null;
+    }
+    return (
+      <div className="input-group-filters">
+        <IssueFilterTags
+          colorMap={colorMap}
+          issues={issues}
+          onFilterChanged={onFilterChanged}
+          selectedFilters={selectedFilters}
+        />
+      </div>
+    );
+  }
+
   render() {
     const {
       distance,
@@ -109,11 +136,13 @@ class SearchBar extends React.Component {
           submitHandler={this.searchHandler}
           searchType={searchType}
         />
+
         <DistanceFilter
           changeHandler={this.distanceHandler}
           distance={distance}
           hidden={searchType === 'district'}
-        />
+          />
+        {this.renderFilterBar()}
       </div>
     );
   }
@@ -122,6 +151,7 @@ class SearchBar extends React.Component {
 const mapStateToProps = state => ({
   colorMap: getColorMap(state),
   distance: getDistance(state),
+  issues: getCurrentIssueFocuses(state),
   location: getLocation(state),
   searchType: getSearchType(state),
   selectedFilters: getFilters(state),
@@ -130,12 +160,15 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   changeSearchType: searchType => dispatch(selectionActions.changeSearchType(searchType)),
+  onFilterChanged: filters => dispatch(selectionActions.setIssueTypeFilters(filters)),
   resetSearchByQueryString: () => dispatch(selectionActions.resetSearchByQueryString()),
   resetSearchByZip: () => dispatch(selectionActions.resetSearchByZip()),
   resetSelections: () => dispatch(selectionActions.resetSelections()),
   searchByDistrict: district => dispatch(selectionActions.searchByDistrict(district)),
   searchByQueryString: val => dispatch(selectionActions.searchByQueryString(val)),
   searchByZip: zipcode => dispatch(selectionActions.getLatLngFromZip(zipcode)),
+  searchHandler: (query, searchType, mapType) => (
+    dispatch(selectionActions.searchHandler(query, searchType, mapType))),
   setDistance: distance => dispatch(selectionActions.setDistance(distance)),
   setTextFilter: text => dispatch(selectionActions.setTextFilter(text)),
 });

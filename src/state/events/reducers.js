@@ -2,11 +2,15 @@ const initialState = {
   allEvents: [],
   filterColors: [
     {
-      icon: 'dream-act-icon',
+      icon: 'trump-tax-scam-icon',
       filterBy: 'Town Hall',
-      color: '#CA4948',
+      color: '#2a4b6c',
     },
-    { icon: 'dark-orange', filterBy: 'Impeachment Inquiry', color: '#DB8011' },
+    {
+      icon: 'dark-orange',
+      filterBy: 'Impeachment Inquiry',
+      color: '#ff914d',
+    },
   ],
 };
 

@@ -77,6 +77,11 @@ const userSelectionsReducer = (state = initialState, { type, payload }) => {
         district: initialState.district,
         searchType: payload,
       };
+    case 'SET_ISSUE_TYPE_FILTERS':
+      return {
+        ...state,
+        filters: payload,
+      };
     case 'SET_INITIAL_FILTERS':
       return {
         ...state,

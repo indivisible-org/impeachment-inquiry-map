@@ -54,6 +54,11 @@ export const changeSearchType = payload => ({
   type: 'SET_SEARCH_TYPE',
 });
 
+export const setIssueTypeFilters = payload => ({
+  payload,
+  type: 'SET_ISSUE_TYPE_FILTERS',
+});
+
 export const setInitialFilters = payload => ({
   payload,
   type: 'SET_INITIAL_FILTERS',
