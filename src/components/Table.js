@@ -49,7 +49,7 @@ class Table extends React.Component {
       return (
         <div id="events-list">
           <p className="no-results">Looks like there are no events near you right now. You can create your own
-            <a href="http://act.indivisible.org/event/local-actions/create/" target="_blank"> here.</a>
+            <a href="https://act.impeachmentaugust.org/event/register-impeachment-august/create/" target="_blank"> here.</a>
           </p>
         </div>
       );
