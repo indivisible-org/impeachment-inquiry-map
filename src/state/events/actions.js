@@ -37,7 +37,7 @@ const filterRecurring = (acc, indEvent) => {
   return acc;
 };
 
-const include = event => event.issueFocus === 'Impeachment Inquiry' || event.actionMeetingType === 'Town Hall';
+const include = event => event.issueFocus === 'Impeachment Inquiry' || event.actionMeetingType === 'Town Hall' || event.actionMeetingType === 'Office Hours';
 
 export const startSetEvents = () => (dispatch) => {
   const url = `${indivisibleUrl}/indivisible_public_events.json`;
