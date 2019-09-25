@@ -10,7 +10,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const {
   EnvironmentPlugin,
-  DefinePlugin
+  DefinePlugin,
 } = require('webpack');
 
 const production = process.NODE_ENV;
@@ -28,15 +28,15 @@ const plugins = [
     __DEBUG__: JSON.stringify(!production),
   }),
   new CopyWebpackPlugin([{
-      flatten: true,
-      from: 'src/data',
-      to: 'data',
-    },
-    {
-      flatten: true,
-      from: 'src/assets/images',
-      to: 'assets',
-    },
+    flatten: true,
+    from: 'src/data',
+    to: 'data',
+  },
+  {
+    flatten: true,
+    from: 'src/assets/images',
+    to: 'assets',
+  },
   ]),
 ];
 
@@ -59,7 +59,7 @@ module.exports = {
     rules: [
       // If it's a .js file not in node_modules, use the babel-loader
       {
-        test: /\.js$/,
+        test: /(\.js|\.jsx)$/,
         exclude: /node_modules/,
         loader: 'babel-loader',
       },
@@ -68,19 +68,19 @@ module.exports = {
         test: /\.scss$/,
         loader: ExtractPlugin.extract({
           use: [{
-              loader: 'css-loader',
-              options: {
-                sourceMap: true,
-              },
+            loader: 'css-loader',
+            options: {
+              sourceMap: true,
             },
-            'resolve-url-loader',
-            {
-              loader: 'sass-loader',
-              options: {
-                includePaths: [`${__dirname}/src/style`],
-                sourceMap: true,
-              },
+          },
+          'resolve-url-loader',
+          {
+            loader: 'sass-loader',
+            options: {
+              includePaths: [`${__dirname}/src/style`],
+              sourceMap: true,
             },
+          },
           ],
         }),
       },
@@ -92,7 +92,7 @@ module.exports = {
             limit: 10000,
             name: 'font/[name].[ext]',
           },
-        }, ],
+        }],
       },
       {
         test: /\.(jpg|jpeg|gif|png|tiff|svg)$/,
@@ -103,7 +103,7 @@ module.exports = {
             limit: 6000,
             name: 'image/[name].[ext]',
           },
-        }, ],
+        }],
       },
 
     ],
