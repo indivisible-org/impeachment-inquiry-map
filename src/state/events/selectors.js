@@ -3,6 +3,7 @@ import {
   includes,
   uniqBy,
 } from 'lodash';
+import moment from 'moment';
 import { createSelector } from 'reselect';
 import { computeDistanceBetween, LatLng } from 'spherical-geometry-js';
 
@@ -14,6 +15,7 @@ import {
   getFilters,
   getDistrict,
   getSelectedState,
+  getDateFilter,
 } from '../selections/selectors';
 
 export const getEvents = state => state.events.allEvents;
@@ -31,13 +33,23 @@ const getEventsInState = createSelector(
     if (!usState) {
       return eventsFilteredByKeywords;
     }
-    return eventsFilteredByKeywords.filter(currrentEvent => currrentEvent.state === usState);
+    return eventsFilteredByKeywords.filter(currentEvent => currentEvent.state === usState);
+  },
+);
+
+const getEventsFilteredByDate = createSelector(
+  [getEventsInState, getDateFilter],
+  (eventsInState, date) => {
+    if (!date) {
+      return eventsInState;
+    }
+    return eventsInState.filter(currentEvent => moment(currentEvent.starts_at).isSame(moment(date, 'YYYY-MM-DD'), 'day'));
   },
 );
 
 export const getFilteredEvents = createSelector(
   [
-    getEventsInState,
+    getEventsFilteredByDate,
     getFilterBy,
     getFilterValue,
   ],

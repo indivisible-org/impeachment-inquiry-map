@@ -64,6 +64,11 @@ export const setInitialFilters = payload => ({
   type: 'SET_INITIAL_FILTERS',
 });
 
+export const setDateFilter = payload => ({
+  payload,
+  type: 'SET_DATE_FILTER',
+});
+
 export const getLatLngFromZip = payload => (dispatch) => {
   if (!payload.query) {
     return dispatch(setLatLng({}));

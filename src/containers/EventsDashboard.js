@@ -3,6 +3,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { find } from 'lodash';
+import moment from 'moment';
 
 import states from '../data/states';
 import {
@@ -51,6 +52,7 @@ class EventsDashboard extends React.Component {
     const {
       setRefCode,
       setUsState,
+      setDateFilter,
     } = this.props;
 
     if (document.location.search) {
@@ -58,7 +60,7 @@ class EventsDashboard extends React.Component {
     }
     // const query = document.location.search.match(new RegExp('([?&])issue-filter[^&]*'));
 
-    const params = ['location', 'issue-filter'];
+    const params = ['location', 'issue-filter', 'date'];
     const queries = params.reduce((acc, cur) => {
       const query = document.location.search.match(new RegExp(`[?&]${cur}[^&]*`));
       if (query && query[0].split('=').length > 1) {
@@ -68,6 +70,10 @@ class EventsDashboard extends React.Component {
     }, {});
     if (queries['issue-filter']) {
       this.setState({ issueFilter: decodeURI(queries['issue-filter']) });
+    }
+    if (queries.date && moment(queries.date).isValid) {
+      console.log(queries.date)
+      setDateFilter(queries.date);
     }
     if (queries.location) {
       if (find(states, ele => ele.USPS === queries.location)) {
@@ -280,6 +286,7 @@ const mapDispatchToProps = dispatch => ({
   searchByDistrict: val => dispatch(selectionActions.searchByDistrict(val)),
   searchByQueryString: val => dispatch(selectionActions.searchByQueryString(val)),
   searchByZip: zipcode => dispatch(selectionActions.getLatLngFromZip(zipcode)),
+  setDateFilter: payload => dispatch(selectionActions.setDateFilter(payload)),
   setFilters: filters => dispatch(selectionActions.setFilters(filters)),
   setInitialFilters: events => dispatch(selectionActions.setInitialFilters(events)),
   setLatLng: val => dispatch(selectionActions.setLatLng(val)),
@@ -308,6 +315,7 @@ EventsDashboard.propTypes = {
   searchByZip: PropTypes.func.isRequired,
   searchType: PropTypes.string.isRequired,
   selectedUsState: PropTypes.string,
+  setDateFilter: PropTypes.func.isRequired,
   setFilters: PropTypes.func.isRequired,
   setInitialFilters: PropTypes.func.isRequired,
   setLatLng: PropTypes.func.isRequired,

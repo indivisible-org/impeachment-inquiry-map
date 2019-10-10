@@ -88,6 +88,11 @@ const userSelectionsReducer = (state = initialState, { type, payload }) => {
         filters: uniqBy(payload.events, 'issueFocus')
           .map(item => item.issueFocus),
       };
+    case 'SET_DATE_FILTER':
+      return {
+        ...state,
+        dateFilter: payload,
+      };
     default:
       return state;
   }
